@@ -64,8 +64,8 @@ types are supported: full covarariance and diagonal covariance.
     hist::Vector{History}
     "number of points used to train the GMM"
     nx::Int
-    function GMM(w::Vector{T}, μ::Matrix{T}, Σ::Union{DiagCov{T},FullCov{T}},
-                 hist::Vector, nx::Int)
+    function GMM{T,CT}(w::Vector{T}, μ::Matrix{T}, Σ::Union{DiagCov{T},FullCov{T}},
+                 hist::Vector, nx::Int) where {T,CT}
         n = length(w)
         isapprox(1, sum(w)) || error("weights do not sum to one")
         d = size(μ, 2)
@@ -148,7 +148,7 @@ type CSstats{T<:AbstractFloat}
     n::Vector{T}          # zero-order stats, ng
     "first order stats"
     f::Matrix{T}          # first-order stats, ng * d
-    function CSstats(n::Vector, f::Matrix)
+    function CSstats{T}(n::Vector{<:T}, f::Matrix{<:T}) where {T<:AbstractFloat}
         @assert size(n,1)==size(f, 1)
         new(n,f)
     end
@@ -168,7 +168,7 @@ type Cstats{T<:AbstractFloat, CT<:VecOrMat}
     F::Matrix{T}
     "second order stats"
     S::CT
-    function Cstats(n::Vector{T}, f::Matrix{T}, s::MatOrVecMat{T})
+    function Cstats{T,CT}(n::Vector{T}, f::Matrix{T}, s::MatOrVecMat{T}) where {T,CT}
         size(n,1) == size(f,1) || error("Inconsistent size 0th and 1st order stats")
         if size(n) == size(s)   # full covariance stats
             all([size(f,2) == size(ss,1) == size(ss,2) for ss in s]) || error("inconsistent size 1st and 2nd order stats")
@@ -195,7 +195,7 @@ files on disk.  The data is automatically loaded when needed, e.g., by indexing.
 @compat type Data{T,VT<:Union{Matrix,AbstractString}}
     list::Vector{VT}
     API::Dict{Symbol,Function}
-    Data(list::Union{Vector{VT},Vector{Matrix{T}}}, API::Dict{Symbol,Function})=new(list,API)
+    Data{T,VT}(list::Union{Vector{VT},Vector{Matrix{T}}}, API::Dict{Symbol,Function}) where {T,VT} = new(list,API)
 end
 Data{T}(list::Vector{Matrix{T}}) = Data{T, eltype(list)}(list, Dict{Symbol,Function}())
 Data{S<:AbstractString}(list::Vector{S}, t::DataType, API::Dict{Symbol,Function}) = Data{t, S}(list, API)
