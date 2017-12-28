@@ -111,7 +111,7 @@ end
 """
 `VGMM` is the type that is used to store a GMM in the Variational Bayes training.
 """
-type VGMM{T<:AbstractFloat} <: GaussianMixture{T}
+struct VGMM{T<:AbstractFloat} <: GaussianMixture{T,T}
     "number of Gaussians"
     n::Int
     "dimension of Gaussian"
